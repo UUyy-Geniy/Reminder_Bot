@@ -19,3 +19,11 @@ class NewCaseInterfaceCallback(CallbackData, prefix='new_case-ui'):
 
 class RepeatCallback(CallbackData, prefix="repeat"):
     repeat_option: str
+
+
+class FileCallback(CallbackData, prefix='file'):
+    file_id: int
+
+
+class CurrentCaseCallBack(CallbackData, prefix='cur_case'):
+    case_id: int

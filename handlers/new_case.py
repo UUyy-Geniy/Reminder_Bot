@@ -17,7 +17,6 @@ from Scheduler.scheduler import scheduler, send_reminder
 router = Router()
 
 
-
 @router.message(Command('new_case'))
 async def enter(message: Message, state: FSMContext, bot=Bot):
     await bot.send_message(chat_id=message.from_user.id, text="Для начала введите название напоминания")
