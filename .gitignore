@@ -1,0 +1,5 @@
+config.py
+.env
+venv/
+migrations/
+alembic.ini
