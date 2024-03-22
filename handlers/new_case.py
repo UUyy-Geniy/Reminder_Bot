@@ -26,6 +26,8 @@ async def enter(message: Message, state: FSMContext, bot=Bot):
 @router.message(NewCaseStates.set_case_name, F.text)
 async def choose_case_description(message: Message, state: FSMContext, bot=Bot):
     await state.update_data(name=message.text)
+    attachments = []
+    await state.update_data(attachments=attachments)
     await bot.send_message(chat_id=message.from_user.id, text="Отлично!\n"
                                                               "Хотите добавить описание?",
                            reply_markup=kb.set_case_description_interface().as_markup())
@@ -55,8 +57,6 @@ async def skip_case_description(query: CallbackQuery, state: FSMContext, bot=Bot
 @router.message(NewCaseStates.set_case_description)
 async def set_case_date(message: Message, state: FSMContext, bot=Bot):
     await state.update_data(description=message.text)
-    attachments = []
-    await state.update_data(attachments=attachments)
     await bot.send_message(chat_id=message.from_user.id, text="Отлично!\n"
                                                               "Теперь давай определим, на какое время ты хочешь "
                                                               " его назначить",
@@ -117,6 +117,8 @@ async def new_case(query: CallbackQuery, state: FSMContext, bot=Bot):
 @router.callback_query(NewCaseStates.attachment, NewCaseInterfaceCallback.filter(F.set_new_case_files == True))
 async def case_files(query: CallbackQuery, state: FSMContext, bot=Bot):
     await bot.send_message(chat_id=query.from_user.id, text="Перенесите нужные файлы в чат")
+    many_files = False
+    await state.update_data(many_files=many_files)
     await state.set_state(NewCaseStates.set_files)
 
 
@@ -124,6 +126,7 @@ async def case_files(query: CallbackQuery, state: FSMContext, bot=Bot):
 async def set_files(message: Message, state: FSMContext, bot=Bot):
     user_data = await state.get_data()
     attachments = user_data["attachments"]
+    many_files = user_data["many_files"]
 
     if message.document:
         # Добавляем file_id документа в список вложений
@@ -132,12 +135,13 @@ async def set_files(message: Message, state: FSMContext, bot=Bot):
         attachment_info = f"{file_name}:{file_id}"
         attachments.append(attachment_info)
         # Обновляем состояние с новым списком вложений
-
-        await bot.send_message(
-            chat_id=message.from_user.id,
-            text="Вложение добавлено. Отправьте еще файл или завершите добавление, нажав кнопку ниже.",
-            reply_markup=kb.set_new_case_interface().as_markup()
-        )
+        if not many_files:
+            await state.update_data(many_files=True)
+            await bot.send_message(
+                chat_id=message.from_user.id,
+                text="Вложение добавлено. Отправьте еще файл или завершите добавление, нажав кнопку ниже.",
+                reply_markup=kb.set_new_case_interface().as_markup()
+            )
         await state.update_data(attachments=attachments)
     else:
         await bot.send_message(

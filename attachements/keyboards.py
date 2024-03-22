@@ -51,7 +51,7 @@ def get_repeat_keyboard():
     builder.button(text="Еженедельно", callback_data="repeat:weekly")
     builder.button(text="Ежемесячно", callback_data="repeat:monthly")
     builder.button(text="Не повторять", callback_data="repeat:none")
-    builder.adjust(1)  # Если хотите, чтобы каждая кнопка была в своем ряду
+    builder.adjust(1)
     return builder.as_markup()
 
 
@@ -63,6 +63,7 @@ def create_cases_keyboard(cases):
         button_text = str(case.deadline_date) + " " + case.name
         callback_data = CurrentCaseCallBack(case_id=case_id)
         builder.button(text=button_text, callback_data=callback_data)
+    builder.adjust(2)
     return builder.as_markup()
 
 
@@ -74,4 +75,14 @@ def create_files_keyboard(files):
         button_text = doc.file_name
         callback_data = FileCallback(file_id=file_id)
         builder.button(text=button_text, callback_data=callback_data)
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def create_case_management_keyboard(case_id):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Выполнить", callback_data=f"manage_case:complete:{case_id}")
+    builder.button(text="📂 Файлы", callback_data=f"manage_case:files:{case_id}")
+    builder.button(text="🛠 Редактировать", callback_data=f"manage_case:edit:{case_id}")
+    builder.adjust(3)  # Выравнивание кнопок в одну строку
     return builder.as_markup()

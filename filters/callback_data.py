@@ -27,3 +27,8 @@ class FileCallback(CallbackData, prefix='file'):
 
 class CurrentCaseCallBack(CallbackData, prefix='cur_case'):
     case_id: int
+
+
+class ManageCaseCallback(CallbackData, prefix="manage_case"):
+    action: str
+    case_id: int
