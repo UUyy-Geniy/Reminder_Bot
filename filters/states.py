@@ -15,3 +15,14 @@ class NewCaseStates(StatesGroup):
 
 class CurrentCasesStates(StatesGroup):
     get_current_cases = State()
+    get_case_action = State()
+
+
+class TodayCasesStates(StatesGroup):
+    get_current_cases = State()
+    get_case_action = State()
+
+
+class FinishedCasesStates(StatesGroup):
+    get_current_cases = State()
+    get_case_action = State()

@@ -86,3 +86,11 @@ def create_case_management_keyboard(case_id):
     builder.button(text="🛠 Редактировать", callback_data=f"manage_case:edit:{case_id}")
     builder.adjust(3)  # Выравнивание кнопок в одну строку
     return builder.as_markup()
+
+
+def create_finished_case_management_keyboard(case_id):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="📂 Файлы", callback_data=f"manage_case:files:{case_id}")
+    builder.adjust(1)  # Выравнивание кнопок в одну строку
+    return builder.as_markup()
+
