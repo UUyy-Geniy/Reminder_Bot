@@ -4,10 +4,9 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from attachements import messages as msg
 from attachements import keyboards as kb
-from filters.callback_data import UserInterfaceCallback, UserBackCallback, NewCaseInterfaceCallback, RepeatCallback
+from filters.callback_data import NewCaseInterfaceCallback, RepeatCallback
 from filters.states import NewCaseStates
-from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, DialogCalendar, DialogCalendarCallback, \
-    get_user_locale
+from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, get_user_locale
 from aiogram.filters.callback_data import CallbackData
 from datetime import datetime
 from bd.db import db
@@ -71,7 +70,6 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
     calendar = SimpleCalendar(
         locale=await get_user_locale(callback_query.from_user), show_alerts=True
     )
-    calendar.set_dates_range(datetime(2022, 1, 1), datetime(2025, 12, 31))
     selected, date = await calendar.process_selection(callback_query, callback_data)
     if selected:
         await state.update_data(selected_date=date.strftime("%Y-%m-%d"))
@@ -85,8 +83,8 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
             reply_markup=kb.get_repeat_keyboard()
         )
         await state.set_state(NewCaseStates.set_repeat)
-    else:
-        await calendar.process_selection(callback_query, callback_data)
+    # else:
+    #     await calendar.process_selection(callback_query, callback_data)
 
 
 @router.callback_query(NewCaseStates.set_repeat, RepeatCallback.filter())

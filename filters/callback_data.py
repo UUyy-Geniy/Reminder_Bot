@@ -32,3 +32,8 @@ class CurrentCaseCallBack(CallbackData, prefix='cur_case'):
 class ManageCaseCallback(CallbackData, prefix="manage_case"):
     action: str
     case_id: int
+
+
+class EditCaseCallback(CallbackData, prefix="edit_case"):
+    action: str
+    case_id: int

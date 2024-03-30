@@ -22,12 +22,13 @@ class Database:
             logging.error(e)
             logging.error("Database didn't connect")
 
-    def sql_query(self, query, is_single=True, is_update=False):
+    def sql_query(self, query, is_single=True, is_update=False, is_delete=False):
         with self.session_maker(expire_on_commit=True) as session:
             response = session.execute(query)
-            if not is_update:
+            if is_delete or is_update:
+                session.commit()
+            if not is_update and not is_delete:
                 return response.scalars().first() if is_single else response.all()
-            session.commit()
 
     def create_object(self, model, ):
         with self.session_maker(expire_on_commit=True) as session:
