@@ -84,16 +84,16 @@ def create_case_management_keyboard(case_id):
     builder.button(text="📂 Файлы", callback_data=f"manage_case:files:{case_id}")
     builder.button(text="🛠 Редактировать", callback_data=f"manage_case:edit:{case_id}")
     builder.button(text="❌Удалить", callback_data=f"manage_case:delete:{case_id}")
-    builder.adjust(4)  # Выравнивание кнопок в одну строку
+    builder.adjust(2,2)
     return builder.as_markup()
 
 
 def create_finished_case_management_keyboard(case_id):
     builder = InlineKeyboardBuilder()
     builder.button(text="📂 Файлы", callback_data=f"manage_case:files:{case_id}")
-    builder.button(text="🔄 Восстановить", callback_data=f"manage_case:remake:{case_id}")
+    builder.button(text="🔄 Восстановить", callback_data=f"manage_case:restore:{case_id}")
     builder.button(text="❌ Удалить", callback_data=f"manage_case:delete:{case_id}")
-    builder.adjust(3)  # Выравнивание кнопок в одну строку
+    builder.adjust(3)
     return builder.as_markup()
 
 
@@ -104,5 +104,5 @@ def create_case_editing_keyboard(case_id):
     builder.button(text="Дата", callback_data=f"edit_case:deadline_date:{case_id}")
     builder.button(text="Повторение", callback_data=f"edit_case:repeat:{case_id}")
     builder.button(text="Файлы", callback_data=f"edit_case:files:{case_id}")
-    builder.adjust(3, 2)  # Выравнивание кнопок в одну строку
+    builder.adjust(3, 2)
     return builder.as_markup()

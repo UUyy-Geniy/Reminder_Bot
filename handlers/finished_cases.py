@@ -2,11 +2,13 @@ from aiogram import Router, Bot, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaDocument, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters.command import Command
+from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, get_user_locale
+
 from attachements.keyboards import create_files_keyboard, create_cases_keyboard, \
     create_finished_case_management_keyboard
 from filters.states import FinishedCasesStates
 from bd.db import db
-from sqlalchemy import select
+from sqlalchemy import select, update
 from bd.models import Cases, File
 from filters.callback_data import FileCallback, CurrentCaseCallBack, ManageCaseCallback
 
@@ -21,7 +23,8 @@ async def get_current_cases(message: Message, state: FSMContext, bot: Bot):
     if not data:
         await bot.send_message(chat_id=message.from_user.id, text="У вас нет выполненных напоминаний.")
         return
-    await bot.send_message(chat_id=message.from_user.id, text='Ваши завершенные напоминания', reply_markup=cases_keyboard)
+    await bot.send_message(chat_id=message.from_user.id, text='Ваши завершенные напоминания',
+                           reply_markup=cases_keyboard)
     await state.set_state(FinishedCasesStates.get_current_cases)
 
 
@@ -44,3 +47,28 @@ async def show_files(query: CallbackQuery, callback_data: ManageCaseCallback, bo
         await bot.send_message(chat_id=query.from_user.id, text="Файлы по кейсу:", reply_markup=files_keyboard)
     else:
         await bot.send_message(chat_id=query.from_user.id, text="У этого напоминания нет вложений :(")
+
+
+@router.callback_query(FinishedCasesStates.get_case_action, ManageCaseCallback.filter(F.action == "restore"))
+async def ask_restore_date(query: CallbackQuery, callback_data: ManageCaseCallback, bot: Bot, state: FSMContext):
+    case_id = callback_data.case_id
+    await state.update_data(case_id=case_id)
+    await query.message.answer("На какую дату вы хотите восстановить напоминание?",
+                               reply_markup=await SimpleCalendar().start_calendar())
+    await state.set_state(FinishedCasesStates.waiting_for_restore_date)
+
+
+@router.callback_query(FinishedCasesStates.waiting_for_restore_date, SimpleCalendarCallback.filter())
+async def restore_case_with_date(query: CallbackQuery, callback_data: SimpleCalendarCallback, state: FSMContext,
+                                 bot: Bot):
+    selected, date = await SimpleCalendar(locale=await get_user_locale(query.from_user)).process_selection(
+        query, callback_data)
+    if selected:
+        case_id = (await state.get_data()).get('case_id')
+        new_deadline_date = date.strftime("%Y-%m-%d")
+        db.sql_query(
+            update(Cases).where(Cases.id == case_id).values(is_finished=False, deadline_date=new_deadline_date),
+            is_update=True)
+        await bot.send_message(chat_id=query.from_user.id,
+                               text=f"Кейс {case_id} восстановлен на дату {new_deadline_date}.")
+        await state.clear()

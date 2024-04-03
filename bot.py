@@ -10,7 +10,7 @@ dp = aiogram.Dispatcher()
 
 dp.include_router(user.router)
 dp.include_router(new_case.router)
-dp.include_router(today_cases.router)
+# dp.include_router(today_cases.router)
 dp.include_router(active_cases.router)
 dp.include_router(finished_cases.router)
 

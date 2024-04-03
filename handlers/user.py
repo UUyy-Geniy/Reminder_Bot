@@ -21,12 +21,12 @@ async def start(message: Message):
         db.create_object(Users(id=user_id, username=username, first_name=first_name, last_name=last_name))
         await message.answer(text="Привет, я помогу тебе с созданием напоминаний!\n"
                                   "Добавить напоминание - /new_case\n"
-                                  "Напоминания на сегодня - /today_cases\n"
+                                  # "Напоминания на сегодня - /today_cases\n"
                                   "Все напоминания - /active_cases\n"
                                   "Выполненные напоминания - /finished_cases")
     else:
         await message.answer(text="С возвращением!\n"
                                   "Добавить напоминание - /new_case\n"
-                                  "Напоминания на сегодня - /today_cases\n"
+                                  # "Напоминания на сегодня - /today_cases\n"
                                   "Все напоминания - /active_cases\n"
                                   "Выполненные напоминания - /finished_cases")

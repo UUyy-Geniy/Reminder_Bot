@@ -2,11 +2,13 @@ from aiogram import Router, Bot, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters.command import Command
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from attachements.keyboards import create_files_keyboard, create_cases_keyboard, create_case_management_keyboard, \
     create_case_editing_keyboard, get_repeat_keyboard
 from filters.states import CurrentCasesStates, EditCaseStates
 from bd.db import db
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from bd.models import Cases, File
 from filters.callback_data import FileCallback, CurrentCaseCallBack, ManageCaseCallback, EditCaseCallback, \
     RepeatCallback
@@ -79,6 +81,9 @@ async def process_field_choice(query: CallbackQuery, state: FSMContext, bot: Bot
         await bot.send_message(chat_id=query.from_user.id, text="Выберите новую периодичность:",
                                reply_markup=get_repeat_keyboard())
         await state.set_state(EditCaseStates.waiting_for_new_repeat)
+    elif field == 'files':
+        await bot.send_message(chat_id=query.from_user.id, text="Отправьте новые файлы для замены старых.")
+        await state.set_state(EditCaseStates.editing_files)
     else:
         await query.message.edit_text(
             text=f"Введите новое значение для поля '{field}' кейса {case_id}:"
@@ -108,6 +113,57 @@ async def update_case_field(message: Message, state: FSMContext):
             await message.answer(text="Введите корректное описание.")
 
 
+@router.message(EditCaseStates.waiting_for_new_files)
+async def process_new_files_selectio(message: Message, state: FSMContext):
+    await message.answer(text="Отправьте новые файлы для замены старых.")
+    await state.set_state(EditCaseStates.editing_files)
+
+
+#
+
+@router.message(EditCaseStates.editing_files)
+async def receive_new_files(message: Message, state: FSMContext, bot: Bot):
+    case_id = (await state.get_data()).get('case_id')
+    new_attachments = (await state.get_data()).get('new_attachments', [])
+    many_files = (await state.get_data()).get('many_files', False)
+
+    if message.document:
+        new_attachments.append({
+            'file_id': message.document.file_id,
+            'file_name': message.document.file_name
+        })
+        await state.update_data(new_attachments=new_attachments)
+        if not many_files:
+            await state.update_data(many_files=True)
+            await message.answer(
+                text="Файл добавлен. Можете отправить еще или нажать 'Готово'.",
+                reply_markup=get_done_editing_files_keyboard(case_id)
+            )
+    else:
+        await message.answer(
+            text="Пожалуйста, отправьте файл или нажмите 'Готово', если закончили.",
+            reply_markup=get_done_editing_files_keyboard(case_id)
+        )
+
+
+@router.callback_query(EditCaseStates.editing_files, EditCaseCallback.filter(F.action == "done_editing_files"))
+async def finish_editing_files(query: CallbackQuery, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    case_id = data.get('case_id')
+    new_attachments = data.get('new_attachments', [])
+
+    if new_attachments:
+        db.sql_query(delete(File).where(File.case_id == case_id), is_delete=True)
+        for attachment in new_attachments:
+            new_file = File(file_name=attachment['file_name'], file_url=attachment['file_id'], case_id=case_id)
+            db.create_object(new_file)
+        await query.message.answer(text="Все файлы были обновлены.")
+    else:
+        await query.message.answer(text="Не было добавлено ни одного файла.")
+
+    await state.clear()
+
+
 @router.callback_query(EditCaseStates.waiting_for_new_date, SimpleCalendarCallback.filter())
 async def process_new_date_selection(callback_query: CallbackQuery, callback_data: CallbackData, state: FSMContext):
     selected, date = await SimpleCalendar(locale=await get_user_locale(callback_query.from_user)).process_selection(
@@ -133,3 +189,10 @@ async def process_new_repeat_selection(query: CallbackQuery, callback_data: Repe
 
 def is_valid_text(text):
     return isinstance(text, str) and text != ""
+
+
+def get_done_editing_files_keyboard(case_id):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Готово", callback_data=f"edit_case:done_editing_files:{case_id}")
+    builder.adjust(1)
+    return builder.as_markup()
