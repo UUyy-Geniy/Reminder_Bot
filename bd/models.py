@@ -1,14 +1,6 @@
-from datetime import datetime
-from typing import List
-from sqlalchemy import JSON, ForeignKey, func
-from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
-
-# class Base(AsyncAttrs, DeclarativeBase):
-#     pass
 
 Base = declarative_base()
 
@@ -28,9 +20,9 @@ class Cases(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(String(100), ForeignKey("users.id"))
     name = Column(String(100))
-    start_date = Column(Date, nullable=False)
+    start_date = Column(DateTime, nullable=False)
     description = Column(String(100))
-    deadline_date = Column(Date, nullable=True)
+    deadline_date = Column(DateTime, nullable=True)
     repeat = Column(String(100))
     is_finished = Column(Boolean, default=False)
 

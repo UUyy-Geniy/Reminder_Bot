@@ -3,3 +3,5 @@ config.py
 venv/
 migrations/
 alembic.ini
+credentials.json
+token.json
