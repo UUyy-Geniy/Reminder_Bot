@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/RPI_Bot
+    working_dir: /RPI_Bot
+    command: >
+      sh -c "python bot.py"
+    environment:
+      - TZ=Europe/Moscow
+      - DB_URL=postgresql://dbuser:pass@database:5432/dbname
+    depends_on:
+      - database
+
+  database:
+    image: postgres:14.6-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - TZ=Europe/Moscow
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=pass
