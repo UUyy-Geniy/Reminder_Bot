@@ -59,7 +59,7 @@ def create_cases_keyboard(cases):
     for case_row in cases:
         case = case_row[0]
         case_id = case.id
-        button_text = str(case.deadline_date) + " " + case.name
+        button_text = case.name + " " + str(case.deadline_date)
         callback_data = CurrentCaseCallBack(case_id=case_id)
         builder.button(text=button_text, callback_data=callback_data)
     builder.adjust(2)
@@ -85,6 +85,14 @@ def create_case_management_keyboard(case_id):
     builder.button(text="🛠 Редактировать", callback_data=f"manage_case:edit:{case_id}")
     builder.button(text="❌Удалить", callback_data=f"manage_case:delete:{case_id}")
     builder.adjust(2,2)
+    return builder.as_markup()
+
+
+def create_sending_case_management_keyboard(case_id):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Выполнить", callback_data=f"manage_sending_case:complete:{case_id}")
+    builder.button(text="📂 Файлы", callback_data=f"manage_sending_case:files:{case_id}")
+    builder.adjust(2)
     return builder.as_markup()
 
 

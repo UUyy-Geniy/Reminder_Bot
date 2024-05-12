@@ -28,6 +28,7 @@ class FinishedCasesStates(StatesGroup):
     get_current_cases = State()
     get_case_action = State()
     waiting_for_restore_date = State()
+    select_time = State()
 
 
 class EditCaseStates(StatesGroup):
@@ -37,3 +38,4 @@ class EditCaseStates(StatesGroup):
     waiting_for_new_repeat = State()
     waiting_for_field_choice = State()
     waiting_for_new_value = State()
+    awaiting_new_time = State()

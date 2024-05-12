@@ -1,6 +1,6 @@
 from aiogram import Router, Bot, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, InputMediaDocument, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.filters.command import Command
 from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, get_user_locale
 
@@ -11,6 +11,7 @@ from bd.db import db
 from sqlalchemy import select, update
 from bd.models import Cases, File
 from filters.callback_data import FileCallback, CurrentCaseCallBack, ManageCaseCallback
+from datetime import datetime
 
 router = Router()
 
@@ -54,21 +55,42 @@ async def ask_restore_date(query: CallbackQuery, callback_data: ManageCaseCallba
     case_id = callback_data.case_id
     await state.update_data(case_id=case_id)
     await query.message.answer("На какую дату вы хотите восстановить напоминание?",
-                               reply_markup=await SimpleCalendar().start_calendar())
+                               reply_markup=await SimpleCalendar(
+                                   locale=await get_user_locale(query.from_user)).start_calendar())
     await state.set_state(FinishedCasesStates.waiting_for_restore_date)
 
 
 @router.callback_query(FinishedCasesStates.waiting_for_restore_date, SimpleCalendarCallback.filter())
 async def restore_case_with_date(query: CallbackQuery, callback_data: SimpleCalendarCallback, state: FSMContext,
                                  bot: Bot):
-    selected, date = await SimpleCalendar(locale=await get_user_locale(query.from_user)).process_selection(
+    selected, date = await SimpleCalendar().process_selection(
         query, callback_data)
     if selected:
-        case_id = (await state.get_data()).get('case_id')
-        new_deadline_date = date.strftime("%Y-%m-%d")
+        await query.message.answer(
+            "Вы выбрали дату: {}\nТеперь введите время в формате ЧЧ:ММ, например 15:30".format(
+                date.strftime("%d/%m/%Y")),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.update_data(selected_date=date.strftime("%Y-%m-%d"))
+        await state.set_state(FinishedCasesStates.select_time)
+
+
+@router.message(FinishedCasesStates.select_time, F.text)
+async def process_time(message: Message, state: FSMContext, bot: Bot):
+    time_str = message.text
+    data = await state.get_data()
+    selected_date = data.get("selected_date")
+    case_id = (await state.get_data()).get('case_id')
+    try:
+        selected_time = datetime.strptime(time_str, "%H:%M").time()
+        selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
+        full_datetime = datetime.combine(selected_date, selected_time)
+        await state.update_data(selected_date=full_datetime.strftime("%Y-%m-%d %H:%M"))
         db.sql_query(
-            update(Cases).where(Cases.id == case_id).values(is_finished=False, deadline_date=new_deadline_date),
+            update(Cases).where(Cases.id == case_id).values(is_finished=False, deadline_date=full_datetime),
             is_update=True)
-        await bot.send_message(chat_id=query.from_user.id,
-                               text=f"Кейс {case_id} восстановлен на дату {new_deadline_date}.")
-        await state.clear()
+        await bot.send_message(chat_id=message.from_user.id,
+                               text=f"Кейс {case_id} восстановлен на дату {full_datetime}.")
+    except ValueError:
+        await message.answer("Формат времени неверный. Введите время в формате ЧЧ:ММ, например 15:30.")
+    await state.clear()

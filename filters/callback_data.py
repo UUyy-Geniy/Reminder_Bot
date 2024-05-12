@@ -34,6 +34,11 @@ class ManageCaseCallback(CallbackData, prefix="manage_case"):
     case_id: int
 
 
+class ManageSendingCaseCallback(CallbackData, prefix="manage_sending_case"):
+    action: str
+    case_id: int
+
+
 class EditCaseCallback(CallbackData, prefix="edit_case"):
     action: str
     case_id: int

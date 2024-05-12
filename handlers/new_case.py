@@ -11,7 +11,6 @@ from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, get_user_lo
 from datetime import datetime
 from bd.db import db
 from bd.models import Cases, File
-from Scheduler.scheduler import scheduler, send_reminder
 
 import os.path
 from googleapiclient.http import MediaFileUpload
@@ -107,7 +106,7 @@ async def process_time(message: Message, state: FSMContext, bot: Bot):
 
 @router.callback_query(NewCaseStates.set_repeat, RepeatCallback.filter())
 async def set_repeat(query: CallbackQuery, callback_data: RepeatCallback, state: FSMContext, bot=Bot):
-    repeat_option = callback_data.repeat_option  # Получаем выбранный вариант повторения из callback_data
+    repeat_option = callback_data.repeat_option
     await state.update_data(repeat=repeat_option)
     await bot.send_message(chat_id=query.from_user.id, text=f"Вы выбрали повторение: {repeat_option}")
     await bot.send_message(chat_id=query.from_user.id, text=msg.NEW_CASE_FILES,
@@ -125,7 +124,6 @@ async def new_case(query: CallbackQuery, state: FSMContext, bot=Bot):
     case = db.create_object(
         Cases(user_id=user_id, name=info["name"], start_date=datetime.now(), description=info["description"],
               deadline_date=run_date, repeat=info["repeat"]))
-    scheduler.add_job(send_reminder, 'date', run_date=run_date, args=[bot, case])
     await bot.send_message(chat_id=query.from_user.id, text="Напоминание добавлено!\n"
                                                             "Хотите еще? - /new_case")
     await state.clear()
@@ -143,15 +141,15 @@ async def case_files(query: CallbackQuery, state: FSMContext, bot=Bot):
 def get_credentials():
     SCOPES = ['https://www.googleapis.com/auth/drive.file']
     creds = None
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists('token_2.json'):
+        creds = Credentials.from_authorized_user_file('token_2.json', SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials_2.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        with open('token.json', 'w') as token:
+        with open('token_2.json', 'w') as token:
             token.write(creds.to_json())
     return creds
 
@@ -171,17 +169,27 @@ def upload_file_to_drive(file_name, file_path, credentials):
 @router.message(NewCaseStates.set_files)
 async def set_files(message: Message, state: FSMContext, bot: Bot):
     data = await state.get_data()
-    many_files = data["many_files"]
+    many_files = data.get("many_files", False)
     credentials = get_credentials()
 
-    if message.document:
-        if not os.path.exists('tmp'):
-            os.makedirs('tmp')
+    tmp_directory = 'tmp'
+    if not os.path.exists(tmp_directory):
+        os.makedirs(tmp_directory)
 
+    file_path = None
+    file_name = None
+
+    if message.document:
         file_info = await message.bot.get_file(message.document.file_id)
-        file_path = f'tmp/{file_info.file_path}'
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        file_path = os.path.join(tmp_directory, file_info.file_unique_id)
         file_name = message.document.file_name
+
+    elif message.photo:
+        file_info = await message.bot.get_file(message.photo[-1].file_id)
+        file_name = f"photo_{file_info.file_unique_id}.jpg"
+        file_path = os.path.join(tmp_directory, file_name)
+
+    if file_path and file_name:
         await message.bot.download_file(file_info.file_path, file_path)
 
         try:
@@ -193,12 +201,12 @@ async def set_files(message: Message, state: FSMContext, bot: Bot):
 
             await message.answer("Файл успешно загружен на Google Drive.")
 
-            if os.path.exists(file_path):
-                os.remove(file_path)
-
         except Exception as e:
             await message.answer("Произошла ошибка при загрузке файла на Google Drive.")
             print(e)
+        finally:
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
         if not many_files:
             await state.update_data(many_files=True)
@@ -219,13 +227,13 @@ async def finish_case_creation(query: CallbackQuery, state: FSMContext, bot=Bot)
     await bot.delete_message(chat_id=query.from_user.id, message_id=query.message.message_id)
     info = await state.get_data()
     user_id = query.from_user.id
+    selected_date = info["selected_date"]
+    run_date = datetime.strptime(selected_date, "%Y-%m-%d %H:%M")
     case = db.create_object(
         Cases(user_id=user_id, name=info["name"], start_date=datetime.now(), description=info["description"],
-              deadline_date=info["selected_date"], repeat=info["repeat"]))
+              deadline_date=run_date, repeat=info["repeat"]))
     for attachment_info in info["attachments"]:
         file_name, file_url = attachment_info.split('@@@')
         db.create_object(File(file_name=file_name, file_url=file_url, case_id=case))
-    scheduler.add_job(send_reminder, 'date', run_date=info["selected_date"], args=[bot, case])
-
     await bot.send_message(chat_id=query.from_user.id, text="Напоминание добавлено!\nХотите еще? - /new_case")
     await state.clear()
