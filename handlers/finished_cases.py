@@ -18,8 +18,8 @@ router = Router()
 
 @router.message(Command(commands=['finished_cases']))
 async def get_current_cases(message: Message, state: FSMContext, bot: Bot):
-    data = db.sql_query(select(Cases).where(Cases.user_id == str(message.from_user.id), Cases.is_finished == 'true'),
-                        is_single=False)
+    data = db.sql_query(select(Cases).where(Cases.user_id == str(message.from_user.id),
+                                            Cases.is_finished == 'true').order_by(Cases.deadline_date), is_single=False)
     cases_keyboard = create_cases_keyboard(data)
     if not data:
         await bot.send_message(chat_id=message.from_user.id, text="У вас нет выполненных напоминаний.")
