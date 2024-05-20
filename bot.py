@@ -1,11 +1,12 @@
 import aiogram
 import asyncio
-from config import BOT_TOKEN
+import os
+from dotenv import load_dotenv
 from handlers import user, new_case, any, active_cases, finished_cases, today_cases
 from Scheduler.scheduler import scheduler, router
 from Scheduler.scheduler import check_and_send_reminders
 
-bot = aiogram.Bot(token=BOT_TOKEN)
+bot = aiogram.Bot(os.getenv("BOT_TOKEN"))
 dp = aiogram.Dispatcher()
 
 dp.include_router(user.router)
