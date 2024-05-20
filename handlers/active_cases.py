@@ -69,6 +69,7 @@ async def edit_case(query: CallbackQuery, callback_data: ManageCaseCallback, bot
     await bot.send_message(chat_id=query.from_user.id, text=f"Редактирование напоминания", reply_markup=settings)
     await state.set_state(EditCaseStates.waiting_for_field_choice)
 
+#TODO фото при редактировании
 
 @router.callback_query(EditCaseStates.waiting_for_field_choice, EditCaseCallback.filter())
 async def process_field_choice(query: CallbackQuery, state: FSMContext, bot: Bot):
