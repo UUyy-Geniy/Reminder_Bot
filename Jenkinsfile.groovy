@@ -12,9 +12,9 @@ pipeline {
                 echo '===============stopping old container==================='
                 script {
                     if (isUnix()) {
-                        sh 'docker stop reminder_botdocker_job || true'
+                        sh 'docker stop rpi_bot || true'
                     } else {
-                        bat 'docker stop reminder_botdocker_job || true'
+                        bat 'docker stop rpi_bot || true'
                     }
                 }
                 echo '===============old container successfully stopped==================='
