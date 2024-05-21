@@ -32,7 +32,7 @@ pipeline {
                     } else {
                         bat 'powershell -Command "Get-ChildItem -Path .\\* -Recurse | Remove-Item -Force -Recurse"'
                         bat 'git clone --depth=1 https://github.com/UUyy-Geniy/Reminder_Bot.git'
-                        bat 'powershell Remove-Item RPI_Bot/.git* -Recurse -Force'
+                        bat 'powershell Remove-Item Reminder_Bot/.git* -Recurse -Force'
                     }
                 }
                 echo '===============git repo downloaded==================='
@@ -44,9 +44,9 @@ pipeline {
                 withCredentials([file(credentialsId: 'ENV', variable: 'ENV')]) {
                     script {
                         if (isUnix()) {
-                            sh 'cp $ENV ./RPI_Bot/.env'
+                            sh 'cp $ENV ./Reminder_Bot/.env'
                         } else {
-                            bat 'powershell Copy-Item %ENV% -Destination ./RPI_Bot/.env'
+                            bat 'powershell Copy-Item %ENV% -Destination ./Reminder_Bot/.env'
                         }
                     }
                 }
@@ -59,10 +59,10 @@ pipeline {
             echo '===============run docker==================='
                 script {
                     if (isUnix()) {
-                        sh 'cd RPI_Bot && docker-compose up --build'
+                        sh 'cd Reminder_Bot && docker-compose up --build'
 //                         sh 'docker run --name reminder_botdocker_job -d --rm reminder_bot'
                     } else {
-                        bat 'cd RPI_Bot && docker-compose up --build'
+                        bat 'cd Reminder_Bot && docker-compose up --build'
 //                         bat 'docker run --name reminder_botdocker_job -d --rm reminder_bot'
                     }
                 }
