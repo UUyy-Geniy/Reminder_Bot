@@ -42,7 +42,7 @@ pipeline {
         stage('Getting env variables') {
             steps {
                 echo '===============getting env variables==================='
-                withCredentials([file(credentialsId: 'ENV', variable: 'ENV')] {
+                withCredentials([file(credentialsId: 'ENV', variable: 'ENV')]) {
                     script {
                         if (isUnix()) {
                             sh 'cp $ENV ./.env'
