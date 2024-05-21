@@ -44,12 +44,13 @@ pipeline {
                 withCredentials([file(credentialsId: 'ENV', variable: 'ENV')]) {
                     script {
                         if (isUnix()) {
-                            sh 'cp $ENV ./.env'
+                            sh 'cp $ENV ./Reminder_Bot/.env'
                         } else {
-                            bat 'powershell Copy-Item %ENV% -Destination ./.env'
+                            bat 'powershell Copy-Item %ENV% -Destination ./Reminder_Bot/.env'
                         }
                     }
                 }
+                echo '===============got env variables==================='
             }
         }
     }
