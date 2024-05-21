@@ -25,14 +25,14 @@ pipeline {
                 echo '===============downloading git repo==================='
                 script {
                     if (isUnix()) {
-                        sh 'rm -rf Reminder_Bot'
+                        sh 'rm -rf RPI_Bot'
                         sh 'git clone --depth=1 https://github.com/UUyy-Geniy/Reminder_Bot.git'
-                        sh 'rm -rf Reminder_Bot/.git*'
+                        sh 'rm -rf RPI_Bot/.git*'
                         sh 'ls'
                     } else {
-                        bat 'powershell Remove-Item Reminder_Bot -Recurse -Force'
+                        bat 'powershell Remove-Item RPI_Bot -Recurse -Force'
                         bat 'git clone --depth=1 https://github.com/UUyy-Geniy/Reminder_Bot.git'
-                        bat 'powershell Remove-Item Reminder_Bot/.git* -Recurse -Force'
+                        bat 'powershell Remove-Item RPI_Bot/.git* -Recurse -Force'
                         bat 'ls'
                     }
                 }
