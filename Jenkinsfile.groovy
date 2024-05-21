@@ -58,10 +58,10 @@ pipeline {
             echo '===============run docker==================='
                 script {
                     if (isUnix()) {
-                        sh 'docker build -t reminder_bot .'
+                        sh 'cd Reminder_Bot && docker build -t reminder_bot .'
                         sh 'docker run --name reminder_botdocker_job -d --rm reminder_bot'
                     } else {
-                        bat 'docker build -t reminder_bot .'
+                        bat 'cd Reminder_Bot && docker build -t reminder_bot .'
                         bat 'docker run --name reminder_botdocker_job -d --rm reminder_bot'
                     }
                 }
