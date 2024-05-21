@@ -2,7 +2,6 @@ config.py
 .env
 venv/
 migrations/
-alembic.ini
 credentials.json
 token.json
 credentials_2.json
