@@ -30,9 +30,9 @@ pipeline {
                         sh 'rm -rf RPI_Bot/.git*'
                         sh 'ls'
                     } else {
-                        bat 'powershell Remove-Item Reminder_Bot job -Recurse -Force'
+                        bat 'powershell Remove-Item Reminder_Bot_job -Recurse -Force'
                         bat 'git clone --depth=1 https://github.com/UUyy-Geniy/Reminder_Bot.git'
-                        bat 'powershell Remove-Item Reminder_Bot job/.git* -Recurse -Force'
+                        bat 'powershell Remove-Item Reminder_Bot_job/.git* -Recurse -Force'
                         bat 'ls'
                     }
                 }
