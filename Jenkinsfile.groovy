@@ -32,7 +32,7 @@ pipeline {
                     } else {
                         bat 'powershell -Command "Get-ChildItem -Path .\\* -Recurse | Remove-Item -Force -Recurse"'
                         bat 'git clone --depth=1 https://github.com/UUyy-Geniy/Reminder_Bot.git'
-                        bat 'powershell Remove-Item Reminder_Bot_job/.git* -Recurse -Force'
+                        bat 'powershell Remove-Item Reminder_Bot/.git* -Recurse -Force'
                         bat 'ls'
                     }
                 }
