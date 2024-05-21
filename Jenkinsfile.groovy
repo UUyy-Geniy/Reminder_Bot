@@ -7,19 +7,19 @@ pipeline {
                 echo 'Building...'
             }
         }
-        stage('Stop old container') {
-            steps {
-                echo '===============stopping old container==================='
-                script {
-                    if (isUnix()) {
-                        sh 'docker stop rpi_bot || true'
-                    } else {
-                        bat 'docker stop rpi_bot || true'
-                    }
-                }
-                echo '===============old container successfully stopped==================='
-            }
-        }
+//         stage('Stop old container') {
+//             steps {
+//                 echo '===============stopping old container==================='
+//                 script {
+//                     if (isUnix()) {
+//                         sh 'docker stop rpi_bot || true'
+//                     } else {
+//                         bat 'docker stop rpi_bot || true'
+//                     }
+//                 }
+//                 echo '===============old container successfully stopped==================='
+//             }
+//         }
         stage('Download git repo') {
             steps {
                 echo '===============downloading git repo==================='
