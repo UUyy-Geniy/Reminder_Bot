@@ -142,6 +142,7 @@ def get_credentials():
     SCOPES = ['https://www.googleapis.com/auth/drive.file']
     creds = None
     if os.path.exists('token_3.json'):
+        os.chmod('token_3.json', 0o666)
         creds = Credentials.from_authorized_user_file('token_3.json', SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
