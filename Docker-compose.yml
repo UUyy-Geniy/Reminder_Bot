@@ -5,9 +5,9 @@ services:
     build: .
     ports:
       - "3000:3000"
-    volumes:
-      - .:/RPI_Bot
-      - ./migrations:/RPI_Bot/migrations
+#    volumes:
+#      - .:/RPI_Bot
+#      - ./migrations:/RPI_Bot/migrations
     working_dir: /RPI_Bot
     command: >
       sh -c "python bot.py"
