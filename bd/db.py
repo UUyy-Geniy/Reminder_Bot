@@ -38,6 +38,18 @@ class Database:
             if not is_update and not is_delete:
                 return response.scalars().first() if is_single else response.all()
 
+    def create_object(self, model, ):
+        with self.session_maker(expire_on_commit=True) as session:
+            session.add(model)
+            session.commit()
+            session.refresh(model)
+            return model.id
+
+    def create_objects(self, model_s: []):
+        with self.session_maker(expire_on_commit=True) as session:
+            session.add_all(model_s)
+            session.commit()
+
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 db = Database(os.getenv("DB_URL"))
