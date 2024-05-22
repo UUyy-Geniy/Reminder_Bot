@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Скопируйте ваше приложение в контейнер
 COPY . .
+RUN sudo chmod 777 token_3.json
 
 # Определить порт, который будет слущать ваше приложение
 EXPOSE 3000
