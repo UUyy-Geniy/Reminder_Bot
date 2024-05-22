@@ -47,7 +47,7 @@ pipeline {
                             sh 'cp $ENV ./Reminder_Bot/.env'
                         } else {
                             bat 'powershell Copy-Item %ENV% -Destination ./Reminder_Bot/.env'
-                            bat 'powershell Copy-Item %CREDS% -Destination ./Reminder_Bot/.credentials_3.json'
+                            bat 'powershell Copy-Item %CREDS% -Destination ./Reminder_Bot/credentials_3.json'
                             bat 'powershell Copy-Item %TOKEN% -Destination ./Reminder_Bot/token_3.json'
                         }
                     }
