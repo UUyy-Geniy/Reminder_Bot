@@ -38,19 +38,21 @@ pipeline {
                 echo '===============git repo downloaded==================='
             }
         }
-        stage('Getting env variables') {
+        stage('Getting creds and env variables') {
             steps {
                 echo '===============getting env variables==================='
-                withCredentials([file(credentialsId: 'ENV', variable: 'ENV')]) {
+                withCredentials([file(credentialsId: 'ENV', variable: 'ENV'), file(credentialsId: 'CREDS', variable: 'CREDS'), file(credentialsId: 'TOKEN', variable: 'TOKEN')]) {
                     script {
                         if (isUnix()) {
                             sh 'cp $ENV ./Reminder_Bot/.env'
                         } else {
                             bat 'powershell Copy-Item %ENV% -Destination ./Reminder_Bot/.env'
+                            bat 'powershell Copy-Item %CREDS% -Destination ./Reminder_Bot/.credentials_3.json'
+                            bat 'powershell Copy-Item %TOKEN% -Destination ./Reminder_Bot/token_3.json'
                         }
                     }
                 }
-                echo '===============got env variables==================='
+                echo '===============got creds and env variables==================='
             }
         }
     }
