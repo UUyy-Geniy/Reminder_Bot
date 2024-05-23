@@ -49,7 +49,7 @@ def get_repeat_keyboard():
     builder.button(text="Ежедневно", callback_data="repeat:daily")
     builder.button(text="Еженедельно", callback_data="repeat:weekly")
     builder.button(text="Ежемесячно", callback_data="repeat:monthly")
-    builder.button(text="Не повторять", callback_data="repeat:none")
+    builder.button(text="Хахахахаха", callback_data="repeat:none")
     builder.adjust(1)
     return builder.as_markup()
 
