@@ -46,7 +46,7 @@ def set_new_case_interface() -> InlineKeyboardBuilder:
 
 def get_repeat_keyboard():
     builder = InlineKeyboardBuilder()
-    builder.button(text="ХАХАХАХАХА", callback_data="repeat:daily")
+    builder.button(text="Ежедневно", callback_data="repeat:daily")
     builder.button(text="Еженедельно", callback_data="repeat:weekly")
     builder.button(text="Ежемесячно", callback_data="repeat:monthly")
     builder.button(text="Не повторять", callback_data="repeat:none")
