@@ -31,12 +31,12 @@ pipeline {
                     script {
                         if (isUnix()) {
                             sh 'cp $ENV ./Reminder_Bot/.env'
-                            sh 'cp $REDS ./Reminder_Bot/credentials_3.json'
-                            sh 'cp $TOKEN ./Reminder_Bot/token_3.json'
+                            sh 'cp $REDS ./Reminder_Bot/credentials_4.json'
+                            sh 'cp $TOKEN ./Reminder_Bot/token_4.json'
                         } else {
                             bat 'powershell Copy-Item %ENV% -Destination ./Reminder_Bot/.env'
-                            bat 'powershell Copy-Item %CREDS% -Destination ./Reminder_Bot/credentials_3.json'
-                            bat 'powershell Copy-Item %TOKEN% -Destination ./Reminder_Bot/token_3.json'
+                            bat 'powershell Copy-Item %CREDS% -Destination ./Reminder_Bot/credentials_4.json'
+                            bat 'powershell Copy-Item %TOKEN% -Destination ./Reminder_Bot/token_4.json'
                         }
                     }
                 }

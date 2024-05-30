@@ -141,16 +141,16 @@ async def case_files(query: CallbackQuery, state: FSMContext, bot=Bot):
 def get_credentials():
     SCOPES = ['https://www.googleapis.com/auth/drive.file']
     creds = None
-    if os.path.exists('token_3.json'):
-        os.chmod('token_3.json', 0o666)
-        creds = Credentials.from_authorized_user_file('token_3.json', SCOPES)
+    if os.path.exists('token_4.json'):
+        os.chmod('token_4.json', 0o666)
+        creds = Credentials.from_authorized_user_file('token_4.json', SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials_3.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials_4.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        with open('token_3.json', 'w') as token:
+        with open('token_4.json', 'w') as token:
             token.write(creds.to_json())
     return creds
 
